@@ -1,5 +1,7 @@
 const calculator = document.querySelector('.calculator')
 const keys = calculator.querySelector('.calculator__keys')
+const display = document.querySelector('.calculator__display')
+const previousKeyType = calculator.dataset.previousKeyType
 
 keys.addEventListener('click', e => {
     if (e.target.matches('button')) {
@@ -9,7 +11,7 @@ keys.addEventListener('click', e => {
         const displayedNum = display.textContent
 
         if (!action) {
-            if(displayedNum === '0') {
+            if(displayedNum === '0' || previousKeyType == 'operator') {
                 display.textContent = keyContent
             } else {
                 display.textContent = displayedNum +keyContent
@@ -22,7 +24,11 @@ keys.addEventListener('click', e => {
             action === 'multiply' ||
             action === 'divide'
         ) {
-            console.log('operator key!')
+            key.classList.add('is-depressed')
+            calculator.dataset.previousKeyType = 'operator'
+
+            calculator.dataset.firstValue = displayedNum
+            calculator.dataset.operator = action
         }
 
         if (action === 'decimal') {
@@ -33,8 +39,26 @@ keys.addEventListener('click', e => {
             console.log('clear key!')
         }
 
-        if (action === 'calculate') {
-            console.log('equals key!')
+        const calculate = (n1, operator, n2) => {
+            if (operator === 'add') {
+                return parseFloat(n1) + parseFloat(n2)
+            } else if (operator === 'subtract') {
+                return parseFloat(n1) - parseFloat(n2)
+            } else if (operator === 'multiply') {
+                return parseFloat(n1) * parseFloat(n2)
+            } else if (operator === 'divide') {
+                return parseFloat(n1) / parseFloat(n2)
+            }
         }
+
+        if (action === 'calculate') {
+            const firstValue = calculator.dataset.firstValue
+            const operator = calculator.dataset.operator
+            const secondValue = displayedNum
+
+            display.textContent = calculate(firstValue, operator, secondValue)
+        }
+            Array.from(key.parentNode.children) .forEach(k => k.classList.remove('is-depressed'))
+        
     }
 })
