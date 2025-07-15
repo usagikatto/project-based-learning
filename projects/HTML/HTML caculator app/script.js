@@ -14,7 +14,7 @@ keys.addEventListener('click', e => {
             action === 'add' ||
             action === 'subtract' ||
             action === 'multiply' ||
-            action === 'divde'
+            action === 'divide'
         ) {
             console.log('operator key!')
         }
@@ -27,7 +27,7 @@ keys.addEventListener('click', e => {
             console.log('clear key!')
         }
 
-        if (action === 'calcualte') {
+        if (action === 'calculate') {
             console.log('equals key!')
         }
     }
