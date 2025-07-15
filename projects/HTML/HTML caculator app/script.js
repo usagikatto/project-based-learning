@@ -10,12 +10,15 @@ keys.addEventListener('click', e => {
         const displayedNum = display.textContent
         const previousKeyType = calculator.dataset.previousKeyType
 
+        Array.from(key.parentNode.children).forEach(k => k.classList.remove('is-depressed'))
+
         if (!action) {
             if(displayedNum === '0' || previousKeyType == 'operator') {
                 display.textContent = keyContent
             } else {
                 display.textContent = displayedNum +keyContent
             }
+            calculator.dataset.previousKeyType ='number'
         }
 
         if (
@@ -24,20 +27,34 @@ keys.addEventListener('click', e => {
             action === 'multiply' ||
             action === 'divide'
         ) {
+            const firstValue = calculator.dataset.firstValue
+            const operator = calculator.dataset.operator
+            const secondValue = displayedNum
+
+            if (firstValue && operator) {
+                display.textcontent = calculate(firstValue, operator, secondValue)
+            }
+
             key.classList.add('is-depressed')
             calculator.dataset.previousKeyType = 'operator'
-
             calculator.dataset.firstValue = displayedNum
-            calculator.dataset.operator = action
+            calculator.dataset.operator = action            
         }
         
 
         if (action === 'decimal') {
-            display.textContent = displayedNum + '.'
+            if(!displayedNum.includes('.')) {
+                display.textContent = displayedNum + '.'
+            } else if (previousKeyType === 'operator') {
+                display.textContent = '0.'
+            }
+
+            calculator.dataset.previousKeyType = 'decimal'
         }
 
         if (action === 'clear') {
             console.log('clear key!')
+            calculator.dataset.previousKeyType = 'clear'
         }
 
         const calculate = (n1, operator, n2) => {
@@ -58,9 +75,7 @@ keys.addEventListener('click', e => {
             const secondValue = displayedNum
 
             display.textContent = calculate(firstValue, operator, secondValue)
+            calculator.dataset.previousKeyType = 'calculate'
         }
-            
-        Array.from(key.parentNode.children)
-            .forEach(k => k.classList.remove('is-depressed'))
     }
 })
