@@ -2,14 +2,13 @@ const calculator = document.querySelector('.calculator')
 const keys = calculator.querySelector('.calculator__keys')
 const display = document.querySelector('.calculator__display')
 
-keys.addEventListener('click', e => {
-    if (!e.target.matches('button')) return
-
-    const key = e.target
-    const action = key.dataset.action
+const resultString = createResultString = (key, displayedNum, state) => {
     const keyContent = key.textContent
-    const displayedNum = display.textContent
-    const previousKeyType = calculator.dataset.previousKeyType
+    const action = key.dataset.action
+    const firstValue = state.firstValue
+    const modValue = state.modValue
+    const operator = state.operator
+    const previousKeyType = state.previousKeyType
 
     const calculate = (n1, operator, n2) => {
         const firstNum = parseFloat(n1)
@@ -20,18 +19,64 @@ keys.addEventListener('click', e => {
         if (operator === 'divide') return firstNum / secondNum
     }
 
+    if (!action) {
+        return displayedNum === '0' ||
+        previousKeyType === 'operator' ||
+        previousKeyType === 'calculate'
+        ? keyContent
+        : displayedNum + keyContent
+    }
+
+    if (action === 'decimal') {
+        if (!displayedNum.includes('.')) return displayedNum + '.'
+        if (previousKeyType === 'operator' || previousKeyType === 'calculate') return '0.'
+        return displayedNum
+    }
+
+    if (
+        action === 'add' ||
+        action === 'subtract' ||
+        action === 'multiply' ||
+        action === 'divide'
+    ) {
+        const firstValue = calculator.dataset.firstValue
+        const operator = calculator.dataset.operator
+
+        return firstValue &&
+        operator &&
+        previousKeyType !== 'operator' &&
+        previousKeyType !== 'calculate'
+        ? calculate(firstValue, operator, secondValue)
+        : displayedNum
+    }
+
+    if (action === 'clear') return 0
+
+    if (action === 'calculate') {
+        const firstValue = calculator.dataset.firstValue
+        const operator = calculator.dataset.operator
+        const modValue = calculator.dataset.modValue
+
+        return firstValue
+        ? previousKeyType === 'calculate'
+            ? calculate(displayedNum, operator, modValue)
+            : calculate(firstValue, operator, displayedNum)
+        : displayedNum
+        }
+    }
+
+
+keys.addEventListener('click', e => {
+    if (!e.target.matches('button')) return
+    const displayedNum = display.textContent
+    const resultString = createResultString(e.target, displayedNum, calculator.dataset)
+    
+
     // Remove depressed state from all keys
     Array.from(key.parentNode.children).forEach(k => k.classList.remove('is-depressed'))
 
     // Number key
-    if (!action) {
-        if (displayedNum === '0' || previousKeyType === 'operator' || previousKeyType === 'calculate') {
-            display.textContent = keyContent
-        } else {
-            display.textContent = displayedNum + keyContent
-        }
-        calculator.dataset.previousKeyType = 'number'
-    }
+    
 
     // Operator key
     if (action === 'add' || action === 'subtract' || action === 'multiply' || action === 'divide') {
